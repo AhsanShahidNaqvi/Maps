@@ -12,14 +12,15 @@
   DEPENDENCIES:
   - Only Mapbox GL JS v3.30.0 (JS + CSS) from the official Mapbox CDN.
   - No scrolling library is used: chapter activation uses the native
-    IntersectionObserver API. No other third-party CDN library is included.
+    IntersectionObserver API.
 
-  HONESTY / NEUTRALITY NOTE:
-  - All bearings, pitches, zooms, exaggeration values, colors, and narrative
-    viewpoints below are *visualization presets* chosen for a pleasant oblique
-    view. They are NOT surveyed geographic or geological measurements.
-  - No named landmarks, hill boundaries, routes, geological contacts,
-    formations, bedding directions, or elevation values are asserted.
+  ==> DEMO GEOLOGY NOTICE <==
+  The geologyGeoJSON in APP_CONFIG below now contains ILLUSTRATIVE, SYNTHETIC
+  sample polygons so you can SEE the geology feature working. These shapes,
+  names, colors, and lithology labels are INVENTED for demonstration only and
+  do NOT represent real formations, boundaries, bedding, or contacts at this
+  location. Replace them with verified authoritative GeoJSON before using this
+  for any real analysis. A visible banner in the app also states this.
 -->
 
 <!-- Mapbox GL JS v3.30.0 official CDN (CSS) -->
@@ -60,7 +61,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Fixed full-viewport map */
   #map {
     position: fixed;
     inset: 0;
@@ -69,8 +69,22 @@
     background: #05070b;
   }
 
-  /* Keep Mapbox attribution readable and never hidden */
   .mapboxgl-ctrl-attrib { font-size: 11px; }
+
+  /* Demo banner */
+  #demo-banner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 70;
+    background: repeating-linear-gradient(45deg, rgba(255,207,92,0.16), rgba(255,207,92,0.16) 12px, rgba(255,207,92,0.28) 12px, rgba(255,207,92,0.28) 24px);
+    border-bottom: 1px solid var(--warn);
+    color: #ffe9a8;
+    font-size: 0.78rem;
+    text-align: center;
+    padding: 6px 12px;
+    letter-spacing: 0.02em;
+  }
+  #demo-banner strong { color: #fff; }
 
   /* ---------- Loading overlay ---------- */
   #loading {
@@ -127,7 +141,7 @@
   }
   .setup-card ol { color: var(--text-dim); font-size: 0.9rem; padding-left: 20px; }
 
-  /* ---------- Status / error area (non-blocking) ---------- */
+  /* ---------- Status / error area ---------- */
   #status-area {
     position: fixed;
     left: 50%;
@@ -164,8 +178,7 @@
     width: 36%;
     max-width: 520px;
     min-width: 320px;
-    margin-left: 0;
-    pointer-events: none; /* let map show through gaps; cards re-enable */
+    pointer-events: none;
   }
 
   .intro, .chapter {
@@ -180,10 +193,7 @@
     -webkit-backdrop-filter: blur(8px);
   }
 
-  .intro {
-    margin-top: 8vh;
-    margin-bottom: 40vh;
-  }
+  .intro { margin-top: 10vh; margin-bottom: 40vh; }
   .intro .eyebrow {
     text-transform: uppercase;
     letter-spacing: 0.14em;
@@ -239,7 +249,7 @@
     margin-top: 10px;
   }
 
-  /* ---------- Progress indicator ---------- */
+  /* ---------- Progress ---------- */
   #progress {
     position: fixed;
     right: 16px;
@@ -264,11 +274,11 @@
   .progress-dot.active { background: var(--accent); border-color: var(--accent); }
   .progress-dot:focus-visible { outline: none; box-shadow: var(--focus); }
 
-  /* ---------- Top HUD ---------- */
+  /* ---------- HUD ---------- */
   #hud {
     position: fixed;
     left: 16px;
-    top: 16px;
+    top: 44px;
     z-index: 30;
     background: var(--panel-bg);
     border: 1px solid var(--card-border);
@@ -296,11 +306,11 @@
     line-height: 1.35;
   }
 
-  /* ---------- Controls panel (Layers & data) ---------- */
+  /* ---------- Controls ---------- */
   #controls-toggle {
     position: fixed;
     right: 16px;
-    top: 16px;
+    top: 44px;
     z-index: 41;
     background: var(--panel-bg);
     color: var(--text);
@@ -319,10 +329,10 @@
   #controls-panel {
     position: fixed;
     right: 16px;
-    top: 62px;
+    top: 90px;
     z-index: 40;
     width: min(340px, calc(100vw - 32px));
-    max-height: calc(100vh - 90px);
+    max-height: calc(100vh - 120px);
     overflow-y: auto;
     background: var(--panel-bg);
     border: 1px solid var(--card-border);
@@ -356,6 +366,7 @@
   .status-line { font-size: 0.8rem; margin: 6px 0; }
   .status-line.readonly { color: var(--good); }
   .status-line.empty { color: var(--warn); }
+  .status-line.demo { color: var(--warn); }
   .note { font-size: 0.76rem; color: var(--text-faint); margin: 6px 0; line-height: 1.4; }
 
   .btn {
@@ -375,14 +386,12 @@
   .btn:focus-visible { outline: none; box-shadow: var(--focus); }
   .btn.full { width: 100%; justify-content: center; }
 
-  /* Custom reset control button placed in the Mapbox control stack */
   .mapboxgl-ctrl-group .reset-btn {
     display: flex; align-items: center; justify-content: center;
     width: 29px; height: 29px; background: transparent; border: none; cursor: pointer; font-size: 15px;
   }
   .mapboxgl-ctrl-group .reset-btn:focus-visible { outline: none; box-shadow: var(--focus); }
 
-  /* Legend / about */
   #legend { margin-top: 4px; }
   .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; margin: 5px 0; color: var(--text-dim); }
   .legend-swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3); flex: 0 0 auto; }
@@ -400,7 +409,6 @@
   details.about .about-body dt { color: var(--text); font-weight: 600; margin-top: 8px; }
   details.about .about-body dd { margin: 2px 0 6px; }
 
-  /* Geology popup */
   .mapboxgl-popup-content {
     background: var(--card-bg);
     color: var(--text);
@@ -411,12 +419,12 @@
   }
   .mapboxgl-popup-close-button { color: var(--text); font-size: 18px; }
   .geo-popup h4 { margin: 0 0 6px; font-size: 0.95rem; }
+  .geo-popup .demo-tag { display:inline-block; font-size:0.62rem; letter-spacing:0.04em; text-transform:uppercase; color:#0a0e14; background:var(--warn); padding:1px 6px; border-radius:5px; margin-bottom:6px; }
   .geo-popup dl { margin: 0; font-size: 0.82rem; }
   .geo-popup dt { color: var(--accent); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
   .geo-popup dd { margin: 1px 0 4px; color: var(--text-dim); }
   .geo-popup a { color: var(--accent); }
 
-  /* Anchor marker */
   .anchor-marker {
     width: 18px; height: 18px; border-radius: 50%;
     background: var(--accent);
@@ -430,19 +438,17 @@
     box-shadow: 0 0 0 2px rgba(0,0,0,0.5);
   }
 
-  /* ---------- Responsive: mobile ---------- */
   @media (max-width: 720px) {
     #story { width: 100%; min-width: 0; max-width: none; }
     .intro, .chapter { margin: 0 12px; padding: 18px; }
-    .intro { margin-top: 6vh; }
-    #hud { max-width: 46vw; font-size: 0.68rem; left: 10px; top: 10px; padding: 8px 9px; }
-    #controls-toggle { right: 10px; top: 10px; padding: 8px 10px; }
-    #controls-panel { right: 10px; left: 10px; width: auto; top: 54px; }
+    .intro { margin-top: 8vh; }
+    #hud { max-width: 46vw; font-size: 0.68rem; left: 10px; top: 40px; padding: 8px 9px; }
+    #controls-toggle { right: 10px; top: 40px; padding: 8px 10px; }
+    #controls-panel { right: 10px; left: 10px; width: auto; top: 84px; }
     #progress { right: 8px; gap: 9px; }
     .progress-dot { width: 11px; height: 11px; }
   }
 
-  /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
     .chapter, #loading, .status-toast { transition: none; animation: none; }
     .spinner { animation: none; }
@@ -456,10 +462,13 @@
 </head>
 <body>
 
-<!-- Map container -->
+<!-- DEMO banner -->
+<div id="demo-banner">
+  <strong>ILLUSTRATIVE DEMO GEOLOGY</strong> — the colored polygons are synthetic samples for display only and do <strong>not</strong> represent real formations. Replace with verified GeoJSON.
+</div>
+
 <div id="map" role="application" aria-label="Interactive 3D terrain map centered on the Murli / Mulri Hills anchor"></div>
 
-<!-- Loading overlay -->
 <div id="loading" aria-live="polite">
   <div class="loader-box">
     <div class="spinner" aria-hidden="true"></div>
@@ -468,7 +477,6 @@
   </div>
 </div>
 
-<!-- Setup / fatal panel (token missing or WebGL unsupported) -->
 <div id="setup-panel" role="dialog" aria-modal="true" aria-labelledby="setup-title">
   <div class="setup-card">
     <h2 id="setup-title">Setup required</h2>
@@ -483,7 +491,6 @@
   </div>
 </div>
 
-<!-- Top-left HUD -->
 <aside id="hud" aria-live="polite" aria-label="Map heads-up display">
   <div class="hud-title">Map HUD</div>
   <div class="hud-row"><span>Cursor lng</span><span id="hud-lng">—</span></div>
@@ -496,12 +503,10 @@
   <div class="hud-tag">DEM-derived elevation · Not survey-grade · Unexaggerated value</div>
 </aside>
 
-<!-- Controls toggle -->
 <button id="controls-toggle" aria-expanded="false" aria-controls="controls-panel">
   <span aria-hidden="true">⚙</span> Layers &amp; data
 </button>
 
-<!-- Controls panel -->
 <section id="controls-panel" aria-label="Layers and data controls">
   <div class="panel-section">
     <h3>Basemap</h3>
@@ -572,7 +577,7 @@
           <dt>Hillshade</dt>
           <dd>A visualization <em>derived</em> from the DEM to emphasize relief.</dd>
           <dt>Geology</dt>
-          <dd>Separate supplied vector data. Empty here until verified GeoJSON is pasted into APP_CONFIG.</dd>
+          <dd>Separate supplied vector data. <strong>Currently ILLUSTRATIVE DEMO polygons</strong> — synthetic, not authoritative. Replace with verified GeoJSON in APP_CONFIG.</dd>
         </dl>
         <p class="note">Hiding geology changes display visibility only — it does not remove physical terrain or beds.</p>
       </div>
@@ -580,10 +585,8 @@
   </div>
 </section>
 
-<!-- Progress indicator -->
 <nav id="progress" aria-label="Chapter progress"></nav>
 
-<!-- Story rail -->
 <main id="story">
   <section class="intro">
     <p class="eyebrow">3D Terrain &amp; Geology Explorer</p>
@@ -593,11 +596,9 @@
     <p class="hint">Scroll the story cards. Drag to pan. Wheel/pinch to zoom. Right-drag or two-finger gesture to rotate and pitch.</p>
   </section>
 
-  <!-- Chapters are generated from APP_CONFIG.chapters at runtime and inserted here -->
   <div id="chapters-mount"></div>
 </main>
 
-<!-- Non-blocking status / error area -->
 <div id="status-area" aria-live="polite" aria-atomic="false"></div>
 
 <script>
@@ -610,82 +611,55 @@
    ===================================================================== */
 const APP_CONFIG = {
   // Mapbox PUBLIC access token (pk.) — safe for client-side use.
-  // For production, restrict this token to your domain(s) in the Mapbox
-  // console (Access tokens -> URL restrictions) to prevent misuse.
   mapboxToken: 'pk.eyJ1IjoiYXNuNDI5MyIsImEiOiJjbXR2d2VjaDgwYWRqMnpzZGMwaW43OXA1In0.e8oSdYNVG9zFqNqShgCwQg',
 
-  // Standard Satellite style.
   styleUrl: 'mapbox://styles/mapbox/standard-satellite',
 
-  // Authoritative anchor in Mapbox order: [longitude, latitude].
   anchor: [67.1127104, 24.9197421],
   anchorLabel: '24.9197421° N, 67.1127104° E',
 
-  // Initial oblique camera (preset).
   initialCamera: {
     center: [67.1127104, 24.9197421],
     zoom: 9.8,
-    pitch: 45,   // oblique
-    bearing: 20  // sensible preset bearing
+    pitch: 45,
+    bearing: 20
   },
 
-  // Five chapter camera presets (all centered on the anchor).
   chapters: [
     {
-      id: 'ch-regional',
-      index: 1,
-      title: 'Regional context',
+      id: 'ch-regional', index: 1, title: 'Regional context',
       body: 'We begin high and nearly level, placing the supplied anchor within its broad surroundings. Imagery and elevation are draped together so the wider landform pattern is visible.',
       neutral: 'Camera framing is a design preset. No named features or boundaries are asserted.',
-      camera: { center: [67.1127104, 24.9197421], zoom: 9.8, pitch: 25, bearing: 0 },
-      transition: 'flyTo'
+      camera: { center: [67.1127104, 24.9197421], zoom: 9.8, pitch: 25, bearing: 0 }, transition: 'flyTo'
     },
     {
-      id: 'ch-approach',
-      index: 2,
-      title: 'Approach',
+      id: 'ch-approach', index: 2, title: 'Approach',
       body: 'The camera descends and tilts, adopting an oblique angle. Relief begins to read as three-dimensional form as the terrain model shapes the imagery.',
       neutral: 'Pitch and bearing are visualization choices, not survey directions.',
-      camera: { center: [67.1127104, 24.9197421], zoom: 11.8, pitch: 50, bearing: -25 },
-      transition: 'flyTo'
+      camera: { center: [67.1127104, 24.9197421], zoom: 11.8, pitch: 50, bearing: -25 }, transition: 'flyTo'
     },
     {
-      id: 'ch-relief',
-      index: 3,
-      title: 'Relief',
+      id: 'ch-relief', index: 3, title: 'Relief',
       body: 'A steeper, closer oblique view. Shaded relief and terrain exaggeration make slopes and valleys easier to perceive without changing the underlying elevation data.',
       neutral: 'Exaggeration affects appearance only; DEM values are unchanged.',
-      camera: { center: [67.1127104, 24.9197421], zoom: 13.1, pitch: 65, bearing: 35 },
-      transition: 'easeTo'
+      camera: { center: [67.1127104, 24.9197421], zoom: 13.1, pitch: 65, bearing: 35 }, transition: 'easeTo'
     },
     {
-      id: 'ch-detail',
-      index: 4,
-      title: 'Terrain and geology detail',
-      body: 'The closest framing. If verified geology polygons are supplied in APP_CONFIG, their translucent fills appear here over the terrain. With none supplied, only terrain and imagery are shown.',
-      neutral: 'No geological formation, orientation, or contact is claimed from imagery alone.',
-      camera: { center: [67.1127104, 24.9197421], zoom: 14.2, pitch: 75, bearing: 105 },
-      transition: 'easeTo'
+      id: 'ch-detail', index: 4, title: 'Terrain and geology detail',
+      body: 'The closest framing. The translucent demo geology polygons appear here over the terrain so you can see how supplied data would drape onto the surface. These shapes are illustrative only.',
+      neutral: 'Demo polygons are synthetic — no real formation, orientation, or contact is claimed.',
+      camera: { center: [67.1127104, 24.9197421], zoom: 14.2, pitch: 75, bearing: 105 }, transition: 'easeTo'
     },
     {
-      id: 'ch-final',
-      index: 5,
-      title: 'Final oblique view',
-      body: 'A parting oblique composition from the opposite side. Use the controls to toggle terrain, hillshade, and (when present) geology, or reset to the starting view.',
+      id: 'ch-final', index: 5, title: 'Final oblique view',
+      body: 'A parting oblique composition from the opposite side. Use the controls to toggle terrain, hillshade, and geology, or reset to the starting view.',
       neutral: 'A closing visualization preset — not a measured vantage point.',
-      camera: { center: [67.1127104, 24.9197421], zoom: 13.6, pitch: 72, bearing: -130 },
-      transition: 'flyTo'
+      camera: { center: [67.1127104, 24.9197421], zoom: 13.6, pitch: 72, bearing: -130 }, transition: 'flyTo'
     }
   ],
 
-  // Terrain presets.
-  terrain: {
-    defaultExaggeration: 1.35, // preset within the 1.25–1.5 recommendation
-    minExaggeration: 0,
-    maxExaggeration: 3
-  },
+  terrain: { defaultExaggeration: 1.35, minExaggeration: 0, maxExaggeration: 3 },
 
-  // Restrained fog preset for oblique terrain views.
   fog: {
     'range': [1.5, 12],
     'color': 'rgba(186, 205, 224, 0.55)',
@@ -695,10 +669,8 @@ const APP_CONFIG = {
     'star-intensity': 0.05
   },
 
-  // Standard Satellite light preset.
   lightPreset: 'day',
 
-  // Unique namespaced source & layer IDs.
   ids: {
     demSource: 'murli-dem',
     hillshade: 'murli-hillshade',
@@ -708,68 +680,131 @@ const APP_CONFIG = {
     anchor: 'murli-anchor'
   },
 
-  // UI defaults.
-  ui: {
-    hillshadeOpacity: 0.45,
-    geologyOpacity: 0.55,
-    controlsOpen: false
-  },
+  ui: { hillshadeOpacity: 0.45, geologyOpacity: 0.55, controlsOpen: false },
 
-  // Colors & default opacities.
   colors: {
-    geologyFallback: '#c9a24b', // neutral fallback ONLY (never implies lithology)
+    geologyFallback: '#c9a24b',
     geologyOutline: '#ffe9a8',
     hillshadeShadow: '#1a2230',
     hillshadeHighlight: '#f2f6ff'
   },
-  opacities: {
-    geologyFill: 0.55,
-    geologyOutline: 0.9
-  },
+  opacities: { geologyFill: 0.55, geologyOutline: 0.9 },
 
   /*
-    Replace only this FeatureCollection with verified authoritative GeoJSON.
-    Do not draw or infer formation boundaries, lithology, bedding, strike,
-    dip, thickness, or sedimentary-bed geometry.
+    ===================== ILLUSTRATIVE DEMO GEOLOGY =====================
+    These features are SYNTHETIC bands created for demonstration only.
+    Coordinates, unit names, lithology, and colors are INVENTED and do
+    NOT represent real geology at this location. To use real data,
+    delete these features and paste verified authoritative GeoJSON, or
+    set demoGeology:false and provide an empty features array.
+    ====================================================================
   */
+  demoGeology: true,
   geologyGeoJSON: {
     "type": "FeatureCollection",
-    "name": "murli-authoritative-geology-placeholder",
-    "features": []
+    "name": "murli-ILLUSTRATIVE-DEMO-geology",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "unit_name": "Demo Unit A (illustrative)",
+          "lithology": "Sample lithology — not real",
+          "description": "Synthetic demonstration band. Not authoritative.",
+          "source": "Illustrative demo — not a real source",
+          "color": "#d9a441"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            [67.0930, 24.9060],
+            [67.1320, 24.9060],
+            [67.1320, 24.9125],
+            [67.0930, 24.9125],
+            [67.0930, 24.9060]
+          ]]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "unit_name": "Demo Unit B (illustrative)",
+          "lithology": "Sample lithology — not real",
+          "description": "Synthetic demonstration band. Not authoritative.",
+          "source": "Illustrative demo — not a real source",
+          "color": "#b5773a"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            [67.0930, 24.9125],
+            [67.1320, 24.9125],
+            [67.1320, 24.9190],
+            [67.0930, 24.9190],
+            [67.0930, 24.9125]
+          ]]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "unit_name": "Demo Unit C (illustrative)",
+          "lithology": "Sample lithology — not real",
+          "description": "Synthetic demonstration band. Not authoritative.",
+          "source": "Illustrative demo — not a real source",
+          "color": "#8f9aa6"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            [67.0930, 24.9190],
+            [67.1320, 24.9190],
+            [67.1320, 24.9255],
+            [67.0930, 24.9255],
+            [67.0930, 24.9190]
+          ]]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "unit_name": "Demo Unit D (illustrative)",
+          "lithology": "Sample lithology — not real",
+          "description": "Synthetic demonstration band. Not authoritative.",
+          "source": "Illustrative demo — not a real source",
+          "color": "#c98b6b"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            [67.0930, 24.9255],
+            [67.1320, 24.9255],
+            [67.1320, 24.9320],
+            [67.0930, 24.9320],
+            [67.0930, 24.9255]
+          ]]
+        }
+      }
+    ]
   }
 };
 
 /* =====================================================================
-   Runtime state (single source of truth for restorable UI state)
+   Runtime state
    ===================================================================== */
 const STATE = {
-  map: null,
-  anchorMarker: null,
-  clickMarker: null,
-  geologyPopup: null,
+  map: null, anchorMarker: null, clickMarker: null, geologyPopup: null,
   currentExaggeration: APP_CONFIG.terrain.defaultExaggeration,
-  terrainOn: true,
-  hillshadeOn: true,
-  hillshadeOpacity: APP_CONFIG.ui.hillshadeOpacity,
-  geologyOn: false,           // becomes true only if real features exist
-  geologyOpacity: APP_CONFIG.ui.geologyOpacity,
-  hasGeology: false,
-  usesStandardSlots: true,    // Standard Satellite supports slots
-  activeChapterIndex: null,
-  uiBound: false,             // guard: bind UI listeners once
-  eventsBound: false,         // guard: bind map event listeners once
+  terrainOn: true, hillshadeOn: true, hillshadeOpacity: APP_CONFIG.ui.hillshadeOpacity,
+  geologyOn: false, geologyOpacity: APP_CONFIG.ui.geologyOpacity, hasGeology: false,
+  usesStandardSlots: true, activeChapterIndex: null,
+  uiBound: false, eventsBound: false,
   reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  rafPending: false,
-  lastPointerLngLat: null,
-  anchorElevReady: false
+  rafPending: false, lastPointerLngLat: null, anchorElevReady: false
 };
 
-/* =====================================================================
-   Small utilities
-   ===================================================================== */
 function $(id) { return document.getElementById(id); }
 
-function showStatus(message, kind /* 'info'|'warn'|'error'|'good' */, timeout) {
+function showStatus(message, kind, timeout) {
   const area = $('status-area');
   const toast = document.createElement('div');
   toast.className = 'status-toast' + (kind && kind !== 'info' ? ' ' + kind : '');
@@ -785,10 +820,8 @@ function showStatus(message, kind /* 'info'|'warn'|'error'|'good' */, timeout) {
   return toast;
 }
 
-// Validate a CSS color safely using the browser's own parser.
 function isSafeCssColor(value) {
   if (typeof value !== 'string' || !value.trim()) return false;
-  // Reject anything that could smuggle CSS syntax.
   if (/[;{}()]/.test(value) && !/^rgba?\(|^hsla?\(/i.test(value.trim())) return false;
   const probe = new Option().style;
   probe.color = '';
@@ -796,7 +829,6 @@ function isSafeCssColor(value) {
   return probe.color !== '';
 }
 
-// Does the geology contain drawable polygon features?
 function geologyHasPolygons(fc) {
   if (!fc || fc.type !== 'FeatureCollection' || !Array.isArray(fc.features)) return false;
   return fc.features.some(function (f) {
@@ -806,22 +838,18 @@ function geologyHasPolygons(fc) {
 }
 
 /* =====================================================================
-   Boot: token & WebGL checks, then construct the map
+   Boot
    ===================================================================== */
 function boot() {
-  // Token check first — show setup panel instead of throwing.
   if (!APP_CONFIG.mapboxToken || APP_CONFIG.mapboxToken === 'YOUR_MAPBOX_ACCESS_TOKEN') {
     $('loading').classList.add('hidden');
     $('setup-panel').classList.add('show');
     return;
   }
-
-  // Friendly guard: warn if a SECRET token (sk.) was pasted by mistake.
   if (/^sk\./.test(APP_CONFIG.mapboxToken)) {
     showStatus('You appear to have pasted a SECRET token (sk.). Use a PUBLIC token (pk.) in client-side code.', 'error', 0);
   }
 
-  // WebGL support check (feature-detect supported()).
   const supportedFn = (typeof mapboxgl !== 'undefined' && typeof mapboxgl.supported === 'function')
     ? mapboxgl.supported : null;
   if (supportedFn && !supportedFn()) {
@@ -840,22 +868,16 @@ function boot() {
   try {
     map = new mapboxgl.Map({
       container: 'map',
-      style: APP_CONFIG.styleUrl,           // Standard Satellite
+      style: APP_CONFIG.styleUrl,
       center: APP_CONFIG.initialCamera.center,
       zoom: APP_CONFIG.initialCamera.zoom,
-      pitch: APP_CONFIG.initialCamera.pitch, // oblique
+      pitch: APP_CONFIG.initialCamera.pitch,
       bearing: APP_CONFIG.initialCamera.bearing,
-      projection: 'mercator',               // Mercator for terrain reliability
+      projection: 'mercator',
       maxPitch: 85,
-      interactive: true,
-      dragPan: true,
-      scrollZoom: true,
-      boxZoom: true,
-      dragRotate: true,
-      keyboard: true,
-      doubleClickZoom: true,
-      touchZoomRotate: true,
-      attributionControl: true              // never hide attribution
+      interactive: true, dragPan: true, scrollZoom: true, boxZoom: true,
+      dragRotate: true, keyboard: true, doubleClickZoom: true, touchZoomRotate: true,
+      attributionControl: true
     });
   } catch (err) {
     $('loading').classList.add('hidden');
@@ -867,35 +889,25 @@ function boot() {
   }
 
   STATE.map = map;
-
   addMapControls(map);
   bindMapErrorHandlers(map);
-
-  // style.load fires on first load AND after every style reload.
   map.on('style.load', onStyleLoad);
-
-  // Fallback: hide loader on first idle even if something is slow.
   map.once('idle', function () { $('loading').classList.add('hidden'); });
-
-  // Build chapters + progress + UI once (guarded).
   buildChapters();
   buildProgress();
   bindUI();
 }
 
 /* =====================================================================
-   Map controls (navigation, fullscreen, scale, custom reset)
+   Controls
    ===================================================================== */
 function addMapControls(map) {
   map.addControl(new mapboxgl.NavigationControl({
     showZoom: true, showCompass: true, visualizePitch: true
   }), 'bottom-right');
-
   map.addControl(new mapboxgl.FullscreenControl(), 'bottom-right');
-
   map.addControl(new mapboxgl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
 
-  // Custom accessible Reset View control.
   const ResetControl = function () {};
   ResetControl.prototype.onAdd = function (m) {
     this._map = m;
@@ -913,9 +925,7 @@ function addMapControls(map) {
     return container;
   };
   ResetControl.prototype.onRemove = function () {
-    if (this._container && this._container.parentNode) {
-      this._container.parentNode.removeChild(this._container);
-    }
+    if (this._container && this._container.parentNode) this._container.parentNode.removeChild(this._container);
     this._map = null;
   };
   map.addControl(new ResetControl(), 'bottom-right');
@@ -923,21 +933,12 @@ function addMapControls(map) {
 
 function resetView() {
   const c = APP_CONFIG.initialCamera;
-  const opts = {
-    center: c.center, zoom: c.zoom, pitch: c.pitch, bearing: c.bearing,
-    essential: true
-  };
-  if (STATE.reducedMotion) {
-    STATE.map.jumpTo(opts);
-  } else {
-    STATE.map.flyTo(Object.assign({ duration: 2200 }, opts));
-  }
+  const opts = { center: c.center, zoom: c.zoom, pitch: c.pitch, bearing: c.bearing, essential: true };
+  if (STATE.reducedMotion) STATE.map.jumpTo(opts);
+  else STATE.map.flyTo(Object.assign({ duration: 2200 }, opts));
   showStatus('View reset to the anchor.', 'good', 3000);
 }
 
-/* =====================================================================
-   Error resilience
-   ===================================================================== */
 function bindMapErrorHandlers(map) {
   map.on('error', function (e) {
     const msg = (e && e.error && e.error.message) ? e.error.message : 'A map error occurred.';
@@ -949,25 +950,21 @@ function bindMapErrorHandlers(map) {
     } else if (lower.indexOf('terrain') !== -1 || lower.indexOf('dem') !== -1) {
       showStatus('Terrain/DEM issue: ' + msg, 'warn');
     } else {
-      // Non-critical: report but keep the interface usable.
       showStatus(msg, 'warn');
     }
   });
 }
 
 /* =====================================================================
-   Style lifecycle: runs on first load and every reload.
-   Idempotently (re)creates all custom sources & layers, restores state.
+   Style lifecycle
    ===================================================================== */
 function onStyleLoad() {
   const map = STATE.map;
-
-  // Standard Satellite light preset (feature-detected).
   try {
     if (typeof map.setConfigProperty === 'function') {
       map.setConfigProperty('basemap', 'lightPreset', APP_CONFIG.lightPreset);
     }
-  } catch (e) { /* optional config; safe to ignore */ }
+  } catch (e) {}
 
   ensureDemSource();
   ensureTerrain();
@@ -975,128 +972,84 @@ function onStyleLoad() {
   ensureGeologySource();
   ensureGeologyLayers();
   ensureFog();
-
   restoreLayerState();
 
-  // Bind map interaction/event listeners exactly once.
-  if (!STATE.eventsBound) {
-    bindMapEvents();
-    STATE.eventsBound = true;
-  }
-
+  if (!STATE.eventsBound) { bindMapEvents(); STATE.eventsBound = true; }
   placeAnchorMarker();
 
-  // Query anchor elevation once terrain tiles are ready.
   map.once('idle', function () {
     $('loading').classList.add('hidden');
     updateAnchorElevation();
   });
 
-  // Activate the first chapter's camera on initial load only.
-  if (STATE.activeChapterIndex === null) {
-    activateChapter(0, true);
-  }
+  if (STATE.activeChapterIndex === null) activateChapter(0, true);
 }
 
-/* ---------- DEM source (single, shared) ---------- */
 function ensureDemSource() {
   const map = STATE.map;
   const id = APP_CONFIG.ids.demSource;
   if (!map.getSource(id)) {
-    map.addSource(id, {
-      type: 'raster-dem',
-      url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-      tileSize: 512,
-      maxzoom: 14
-    });
+    map.addSource(id, { type: 'raster-dem', url: 'mapbox://mapbox.mapbox-terrain-dem-v1', tileSize: 512, maxzoom: 14 });
   }
 }
 
-/* ---------- 3D terrain ---------- */
 function ensureTerrain() {
   const map = STATE.map;
   ensureDemSource();
   if (STATE.terrainOn) {
-    map.setTerrain({
-      source: APP_CONFIG.ids.demSource,
-      exaggeration: STATE.currentExaggeration
-    });
+    map.setTerrain({ source: APP_CONFIG.ids.demSource, exaggeration: STATE.currentExaggeration });
   } else {
     map.setTerrain(null);
   }
 }
 
-/* ---------- Hillshade from the same DEM ---------- */
 function ensureHillshadeLayer() {
   const map = STATE.map;
   const id = APP_CONFIG.ids.hillshade;
   ensureDemSource();
   if (!map.getLayer(id)) {
     const layer = {
-      id: id,
-      type: 'hillshade',
-      source: APP_CONFIG.ids.demSource,
+      id: id, type: 'hillshade', source: APP_CONFIG.ids.demSource,
       paint: {
-        'hillshade-exaggeration': STATE.hillshadeOpacity, // acts as intensity
+        'hillshade-exaggeration': STATE.hillshadeOpacity,
         'hillshade-shadow-color': APP_CONFIG.colors.hillshadeShadow,
         'hillshade-highlight-color': APP_CONFIG.colors.hillshadeHighlight
       }
     };
-    // Place hillshade low in the visual stack on Standard Satellite.
     if (STATE.usesStandardSlots) layer.slot = 'bottom';
-    try {
-      map.addLayer(layer);
-    } catch (e) {
-      // Fallback for styles that reject the slot: add without slot.
-      delete layer.slot;
-      if (!map.getLayer(id)) map.addLayer(layer);
-    }
+    try { map.addLayer(layer); }
+    catch (e) { delete layer.slot; if (!map.getLayer(id)) map.addLayer(layer); }
   }
 }
 
-/* ---------- Geology source (from APP_CONFIG only) ---------- */
 function ensureGeologySource() {
   const map = STATE.map;
   const id = APP_CONFIG.ids.geologySource;
   STATE.hasGeology = geologyHasPolygons(APP_CONFIG.geologyGeoJSON);
   if (!map.getSource(id)) {
-    map.addSource(id, {
-      type: 'geojson',
-      data: APP_CONFIG.geologyGeoJSON
-    });
+    map.addSource(id, { type: 'geojson', data: APP_CONFIG.geologyGeoJSON });
   }
 }
 
-/* ---------- Geology fill + outline layers ---------- */
 function ensureGeologyLayers() {
   const map = STATE.map;
-  if (!STATE.hasGeology) return; // Never draw layers for empty/placeholder data.
+  if (!STATE.hasGeology) return;
 
   const fillId = APP_CONFIG.ids.geologyFill;
   const outlineId = APP_CONFIG.ids.geologyOutline;
 
-  // Per-feature color: use validated feature 'color' when safe, else fallback.
-  // Fallback color NEVER implies lithology/formation.
   const fillColorExpr = [
     'case',
-    ['all',
-      ['has', 'color'],
-      ['==', ['typeof', ['get', 'color']], 'string']
-    ],
+    ['all', ['has', 'color'], ['==', ['typeof', ['get', 'color']], 'string']],
     ['get', 'color'],
     APP_CONFIG.colors.geologyFallback
   ];
 
   if (!map.getLayer(fillId)) {
     const fillLayer = {
-      id: fillId,
-      type: 'fill',
-      source: APP_CONFIG.ids.geologySource,
+      id: fillId, type: 'fill', source: APP_CONFIG.ids.geologySource,
       layout: { visibility: STATE.geologyOn ? 'visible' : 'none' },
-      paint: {
-        'fill-color': fillColorExpr,
-        'fill-opacity': STATE.geologyOpacity
-      }
+      paint: { 'fill-color': fillColorExpr, 'fill-opacity': STATE.geologyOpacity }
     };
     if (STATE.usesStandardSlots) fillLayer.slot = 'middle';
     try { map.addLayer(fillLayer); }
@@ -1105,13 +1058,8 @@ function ensureGeologyLayers() {
 
   if (!map.getLayer(outlineId)) {
     const outlineLayer = {
-      id: outlineId,
-      type: 'line',
-      source: APP_CONFIG.ids.geologySource,
-      layout: {
-        visibility: STATE.geologyOn ? 'visible' : 'none',
-        'line-join': 'round'
-      },
+      id: outlineId, type: 'line', source: APP_CONFIG.ids.geologySource,
+      layout: { visibility: STATE.geologyOn ? 'visible' : 'none', 'line-join': 'round' },
       paint: {
         'line-color': APP_CONFIG.colors.geologyOutline,
         'line-width': 1.4,
@@ -1126,64 +1074,42 @@ function ensureGeologyLayers() {
   bindGeologyInteractions();
 }
 
-/* ---------- Fog ---------- */
 function ensureFog() {
-  try { STATE.map.setFog(APP_CONFIG.fog); }
-  catch (e) { /* fog is decorative; ignore failures */ }
+  try { STATE.map.setFog(APP_CONFIG.fog); } catch (e) {}
 }
 
-/* ---------- Restore all restorable state after a (re)load ---------- */
 function restoreLayerState() {
   const map = STATE.map;
-
-  // Terrain + exaggeration.
   ensureTerrain();
 
-  // Hillshade visibility + intensity.
   if (map.getLayer(APP_CONFIG.ids.hillshade)) {
-    map.setLayoutProperty(APP_CONFIG.ids.hillshade, 'visibility',
-      STATE.hillshadeOn ? 'visible' : 'none');
-    map.setPaintProperty(APP_CONFIG.ids.hillshade, 'hillshade-exaggeration',
-      STATE.hillshadeOpacity);
+    map.setLayoutProperty(APP_CONFIG.ids.hillshade, 'visibility', STATE.hillshadeOn ? 'visible' : 'none');
+    map.setPaintProperty(APP_CONFIG.ids.hillshade, 'hillshade-exaggeration', STATE.hillshadeOpacity);
   }
 
-  // Geology visibility + opacity (only if layers exist).
   if (STATE.hasGeology) {
     [APP_CONFIG.ids.geologyFill, APP_CONFIG.ids.geologyOutline].forEach(function (lid) {
-      if (map.getLayer(lid)) {
-        map.setLayoutProperty(lid, 'visibility', STATE.geologyOn ? 'visible' : 'none');
-      }
+      if (map.getLayer(lid)) map.setLayoutProperty(lid, 'visibility', STATE.geologyOn ? 'visible' : 'none');
     });
-    if (map.getLayer(APP_CONFIG.ids.geologyFill)) {
-      map.setPaintProperty(APP_CONFIG.ids.geologyFill, 'fill-opacity', STATE.geologyOpacity);
-    }
-    if (map.getLayer(APP_CONFIG.ids.geologyOutline)) {
-      map.setPaintProperty(APP_CONFIG.ids.geologyOutline, 'line-opacity',
-        Math.min(1, STATE.geologyOpacity + 0.3));
-    }
+    if (map.getLayer(APP_CONFIG.ids.geologyFill)) map.setPaintProperty(APP_CONFIG.ids.geologyFill, 'fill-opacity', STATE.geologyOpacity);
+    if (map.getLayer(APP_CONFIG.ids.geologyOutline)) map.setPaintProperty(APP_CONFIG.ids.geologyOutline, 'line-opacity', Math.min(1, STATE.geologyOpacity + 0.3));
   }
 
-  // Fog.
   ensureFog();
-
-  // Sync the controls UI to current state + data availability.
   syncGeologyControls();
   syncTerrainControls();
 }
 
 /* =====================================================================
-   Anchor & click markers
+   Markers
    ===================================================================== */
 function placeAnchorMarker() {
-  // Marker persists across style reloads; only create once.
   if (STATE.anchorMarker) return;
   const el = document.createElement('div');
   el.className = 'anchor-marker';
   el.setAttribute('role', 'img');
   el.setAttribute('aria-label', 'Map anchor at ' + APP_CONFIG.anchorLabel);
-  STATE.anchorMarker = new mapboxgl.Marker({ element: el })
-    .setLngLat(APP_CONFIG.anchor)
-    .addTo(STATE.map);
+  STATE.anchorMarker = new mapboxgl.Marker({ element: el }).setLngLat(APP_CONFIG.anchor).addTo(STATE.map);
 }
 
 function moveClickMarker(lngLat) {
@@ -1199,12 +1125,10 @@ function moveClickMarker(lngLat) {
 }
 
 /* =====================================================================
-   Map events: pointer HUD, click elevation, camera HUD
+   Map events
    ===================================================================== */
 function bindMapEvents() {
   const map = STATE.map;
-
-  // Throttled pointer elevation/coords via requestAnimationFrame (desktop).
   map.on('mousemove', function (e) {
     STATE.lastPointerLngLat = e.lngLat;
     if (!STATE.rafPending) {
@@ -1215,15 +1139,11 @@ function bindMapEvents() {
       });
     }
   });
-
-  // Click / tap: update coords, elevation, and click marker (covers touch).
   map.on('click', function (e) {
     updatePointerHUD(e.lngLat);
     moveClickMarker(e.lngLat);
     updateClickElevation(e.lngLat);
   });
-
-  // Camera HUD updates.
   map.on('move', updateCameraHUD);
   updateCameraHUD();
 }
@@ -1243,16 +1163,11 @@ function updateCameraHUD() {
   $('hud-bearing').textContent = map.getBearing().toFixed(0) + '°';
 }
 
-// Query elevation from the DEM, unexaggerated. Null => "not yet available".
 function queryElev(lngLat) {
   const map = STATE.map;
   if (typeof map.queryTerrainElevation !== 'function') return null;
-  try {
-    return map.queryTerrainElevation(lngLat, { exaggerated: false });
-  } catch (e) {
-    showStatus('Elevation query failed for a point.', 'warn', 3500);
-    return null;
-  }
+  try { return map.queryTerrainElevation(lngLat, { exaggerated: false }); }
+  catch (e) { showStatus('Elevation query failed for a point.', 'warn', 3500); return null; }
 }
 
 function fmtElev(v) {
@@ -1261,10 +1176,7 @@ function fmtElev(v) {
 }
 
 function updateAnchorElevation() {
-  if (!STATE.terrainOn) {
-    $('hud-anchor-elev').textContent = 'Enable terrain';
-    return;
-  }
+  if (!STATE.terrainOn) { $('hud-anchor-elev').textContent = 'Enable terrain'; return; }
   const lngLat = { lng: APP_CONFIG.anchor[0], lat: APP_CONFIG.anchor[1] };
   const v = queryElev(lngLat);
   $('hud-anchor-elev').textContent = fmtElev(v);
@@ -1272,16 +1184,13 @@ function updateAnchorElevation() {
 }
 
 function updateClickElevation(lngLat) {
-  if (!STATE.terrainOn) {
-    $('hud-click-elev').textContent = 'Enable terrain';
-    return;
-  }
+  if (!STATE.terrainOn) { $('hud-click-elev').textContent = 'Enable terrain'; return; }
   const v = queryElev(lngLat);
   $('hud-click-elev').textContent = fmtElev(v);
 }
 
 /* =====================================================================
-   Geology interactions (hover cursor, highlight, click popup)
+   Geology interactions
    ===================================================================== */
 let geologyInteractionsBound = false;
 function bindGeologyInteractions() {
@@ -1291,15 +1200,11 @@ function bindGeologyInteractions() {
 
   map.on('mouseenter', fillId, function () {
     map.getCanvas().style.cursor = 'pointer';
-    if (map.getLayer(fillId)) {
-      map.setPaintProperty(fillId, 'fill-opacity', Math.min(1, STATE.geologyOpacity + 0.2));
-    }
+    if (map.getLayer(fillId)) map.setPaintProperty(fillId, 'fill-opacity', Math.min(1, STATE.geologyOpacity + 0.2));
   });
   map.on('mouseleave', fillId, function () {
     map.getCanvas().style.cursor = '';
-    if (map.getLayer(fillId)) {
-      map.setPaintProperty(fillId, 'fill-opacity', STATE.geologyOpacity);
-    }
+    if (map.getLayer(fillId)) map.setPaintProperty(fillId, 'fill-opacity', STATE.geologyOpacity);
   });
   map.on('click', fillId, function (e) {
     if (!e.features || !e.features.length) return;
@@ -1309,10 +1214,17 @@ function bindGeologyInteractions() {
   geologyInteractionsBound = true;
 }
 
-// Build popup content with safe DOM APIs — only properties actually present.
 function showGeologyPopup(lngLat, props) {
   const container = document.createElement('div');
   container.className = 'geo-popup';
+
+  // Demo tag when demo geology is active.
+  if (APP_CONFIG.demoGeology) {
+    const tag = document.createElement('span');
+    tag.className = 'demo-tag';
+    tag.textContent = 'Illustrative demo';
+    container.appendChild(tag);
+  }
 
   const known = [
     { key: 'unit_name', label: 'Unit' },
@@ -1343,7 +1255,6 @@ function showGeologyPopup(lngLat, props) {
     }
   });
 
-  // Source attribution only when provided.
   const srcText = (typeof props.source === 'string' && props.source.trim()) ? props.source : null;
   const srcUrl = (typeof props.source_url === 'string' && props.source_url.trim()) ? props.source_url : null;
   if (srcText || srcUrl) {
@@ -1370,20 +1281,17 @@ function showGeologyPopup(lngLat, props) {
 
   if (STATE.geologyPopup) STATE.geologyPopup.remove();
   STATE.geologyPopup = new mapboxgl.Popup({ closeButton: true, maxWidth: '280px' })
-    .setLngLat(lngLat)
-    .setDOMContent(container)
-    .addTo(STATE.map);
+    .setLngLat(lngLat).setDOMContent(container).addTo(STATE.map);
 }
 
 /* =====================================================================
-   Legend built from ACTUAL loaded property values only
+   Legend
    ===================================================================== */
 function buildLegend() {
   const el = $('legend');
   el.innerHTML = '';
-  if (!STATE.hasGeology) return; // empty-state message handled elsewhere
+  if (!STATE.hasGeology) return;
 
-  // Collect distinct (label, color) pairs from real features.
   const seen = new Map();
   APP_CONFIG.geologyGeoJSON.features.forEach(function (f) {
     if (!f || !f.geometry) return;
@@ -1392,8 +1300,7 @@ function buildLegend() {
     const label = (typeof p.unit_name === 'string' && p.unit_name.trim()) ? p.unit_name
       : (typeof p.formation === 'string' && p.formation.trim()) ? p.formation
       : 'Unlabeled unit';
-    const color = (typeof p.color === 'string' && isSafeCssColor(p.color))
-      ? p.color : APP_CONFIG.colors.geologyFallback;
+    const color = (typeof p.color === 'string' && isSafeCssColor(p.color)) ? p.color : APP_CONFIG.colors.geologyFallback;
     const key = label + '||' + color;
     if (!seen.has(key)) seen.set(key, { label: label, color: color });
   });
@@ -1401,7 +1308,9 @@ function buildLegend() {
   if (!seen.size) return;
   const heading = document.createElement('div');
   heading.className = 'note';
-  heading.textContent = 'Legend (from loaded data):';
+  heading.textContent = APP_CONFIG.demoGeology
+    ? 'Legend (ILLUSTRATIVE DEMO — not real):'
+    : 'Legend (from loaded data):';
   el.appendChild(heading);
 
   seen.forEach(function (item) {
@@ -1418,7 +1327,7 @@ function buildLegend() {
 }
 
 /* =====================================================================
-   Chapters (story cards) + IntersectionObserver
+   Chapters
    ===================================================================== */
 function buildChapters() {
   const mount = $('chapters-mount');
@@ -1434,40 +1343,24 @@ function buildChapters() {
     idx.className = 'chapter-index';
     idx.textContent = 'Chapter ' + ch.index + ' of ' + APP_CONFIG.chapters.length;
 
-    const h = document.createElement('h2');
-    h.textContent = ch.title;
-
-    const body = document.createElement('p');
-    body.textContent = ch.body;
-
-    const note = document.createElement('p');
-    note.className = 'neutral-note';
-    note.textContent = ch.neutral;
+    const h = document.createElement('h2'); h.textContent = ch.title;
+    const body = document.createElement('p'); body.textContent = ch.body;
+    const note = document.createElement('p'); note.className = 'neutral-note'; note.textContent = ch.neutral;
 
     sec.appendChild(idx); sec.appendChild(h); sec.appendChild(body); sec.appendChild(note);
     mount.appendChild(sec);
   });
 
-  // IntersectionObserver to activate chapters on scroll.
   const observer = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
         const i = parseInt(entry.target.getAttribute('data-index'), 10);
-        if (!isNaN(i) && i !== STATE.activeChapterIndex) {
-          activateChapter(i, false);
-        }
+        if (!isNaN(i) && i !== STATE.activeChapterIndex) activateChapter(i, false);
       }
     });
-  }, {
-    root: null,
-    // Activate when a card is around the vertical middle of the viewport.
-    rootMargin: '-45% 0px -45% 0px',
-    threshold: 0
-  });
+  }, { root: null, rootMargin: '-45% 0px -45% 0px', threshold: 0 });
 
-  document.querySelectorAll('#chapters-mount .chapter').forEach(function (el) {
-    observer.observe(el);
-  });
+  document.querySelectorAll('#chapters-mount .chapter').forEach(function (el) { observer.observe(el); });
 }
 
 function buildProgress() {
@@ -1490,69 +1383,42 @@ function buildProgress() {
 function activateChapter(index, isInitial) {
   const ch = APP_CONFIG.chapters[index];
   if (!ch) return;
-
   STATE.activeChapterIndex = index;
 
-  // Update card styling.
-  document.querySelectorAll('#chapters-mount .chapter').forEach(function (el, i) {
-    el.classList.toggle('active', i === index);
-  });
-  // Update progress dots.
-  document.querySelectorAll('#progress .progress-dot').forEach(function (el, i) {
-    el.classList.toggle('active', i === index);
-  });
+  document.querySelectorAll('#chapters-mount .chapter').forEach(function (el, i) { el.classList.toggle('active', i === index); });
+  document.querySelectorAll('#progress .progress-dot').forEach(function (el, i) { el.classList.toggle('active', i === index); });
 
-  // Update URL hash without jumping.
-  try {
-    if (history && history.replaceState) {
-      history.replaceState(null, '', '#' + ch.id);
-    }
-  } catch (e) { /* ignore */ }
+  try { if (history && history.replaceState) history.replaceState(null, '', '#' + ch.id); } catch (e) {}
 
-  // Stop any previous programmatic animation safely, then animate.
   const map = STATE.map;
-  try { map.stop(); } catch (e) { /* ignore */ }
+  try { map.stop(); } catch (e) {}
 
   const cam = ch.camera;
-  const opts = {
-    center: cam.center, zoom: cam.zoom, pitch: cam.pitch, bearing: cam.bearing,
-    essential: true
-  };
+  const opts = { center: cam.center, zoom: cam.zoom, pitch: cam.pitch, bearing: cam.bearing, essential: true };
 
-  if (STATE.reducedMotion) {
-    // Immediate/short transitions for reduced-motion users.
-    map.jumpTo(opts);
-  } else if (isInitial) {
-    map.jumpTo(opts);
-  } else if (ch.transition === 'easeTo') {
-    map.easeTo(Object.assign({ duration: 2000 }, opts));
-  } else {
-    map.flyTo(Object.assign({ duration: 3000, curve: 1.4 }, opts));
-  }
+  if (STATE.reducedMotion) map.jumpTo(opts);
+  else if (isInitial) map.jumpTo(opts);
+  else if (ch.transition === 'easeTo') map.easeTo(Object.assign({ duration: 2000 }, opts));
+  else map.flyTo(Object.assign({ duration: 3000, curve: 1.4 }, opts));
 }
 
-// Support deep-linking via hash on load.
 function honorInitialHash() {
   const h = (location.hash || '').replace('#', '');
   if (!h) return;
   const idx = APP_CONFIG.chapters.findIndex(function (c) { return c.id === h; });
   if (idx >= 0) {
     const target = document.getElementById(h);
-    if (target) {
-      // Defer to allow layout; use instant scroll to avoid a big jump animation.
-      setTimeout(function () { target.scrollIntoView({ block: 'center' }); }, 300);
-    }
+    if (target) setTimeout(function () { target.scrollIntoView({ block: 'center' }); }, 300);
   }
 }
 
 /* =====================================================================
-   UI binding (once) — checkboxes, sliders, buttons, panel
+   UI binding
    ===================================================================== */
 function bindUI() {
   if (STATE.uiBound) return;
   STATE.uiBound = true;
 
-  // Controls panel toggle.
   const toggleBtn = $('controls-toggle');
   const panel = $('controls-panel');
   if (APP_CONFIG.ui.controlsOpen) { panel.classList.add('open'); toggleBtn.setAttribute('aria-expanded', 'true'); }
@@ -1561,16 +1427,14 @@ function bindUI() {
     toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
 
-  // 3D terrain checkbox.
   const terrainToggle = $('terrain-toggle');
   terrainToggle.checked = STATE.terrainOn;
   terrainToggle.addEventListener('change', function () {
     STATE.terrainOn = terrainToggle.checked;
-    ensureTerrain(); // preserves DEM source; only toggles setTerrain
+    ensureTerrain();
     syncTerrainControls();
     if (STATE.terrainOn) {
       showStatus('3D terrain enabled.', 'good', 2500);
-      // Refresh anchor elevation once tiles settle.
       STATE.map.once('idle', updateAnchorElevation);
     } else {
       showStatus('3D terrain disabled (DEM source preserved for hillshade).', 'info', 3000);
@@ -1579,7 +1443,6 @@ function bindUI() {
     }
   });
 
-  // Exaggeration slider.
   const exSlider = $('exaggeration-slider');
   exSlider.min = String(APP_CONFIG.terrain.minExaggeration);
   exSlider.max = String(APP_CONFIG.terrain.maxExaggeration);
@@ -1588,21 +1451,18 @@ function bindUI() {
   exSlider.addEventListener('input', function () {
     STATE.currentExaggeration = parseFloat(exSlider.value);
     $('exaggeration-val').textContent = STATE.currentExaggeration.toFixed(2) + '×';
-    if (STATE.terrainOn) ensureTerrain(); // reapply terrain, no new source
+    if (STATE.terrainOn) ensureTerrain();
   });
 
-  // Hillshade checkbox.
   const hsToggle = $('hillshade-toggle');
   hsToggle.checked = STATE.hillshadeOn;
   hsToggle.addEventListener('change', function () {
     STATE.hillshadeOn = hsToggle.checked;
     if (STATE.map.getLayer(APP_CONFIG.ids.hillshade)) {
-      STATE.map.setLayoutProperty(APP_CONFIG.ids.hillshade, 'visibility',
-        STATE.hillshadeOn ? 'visible' : 'none');
+      STATE.map.setLayoutProperty(APP_CONFIG.ids.hillshade, 'visibility', STATE.hillshadeOn ? 'visible' : 'none');
     }
   });
 
-  // Hillshade intensity slider.
   const hsSlider = $('hillshade-slider');
   hsSlider.value = String(STATE.hillshadeOpacity);
   $('hillshade-val').textContent = STATE.hillshadeOpacity.toFixed(2);
@@ -1610,59 +1470,44 @@ function bindUI() {
     STATE.hillshadeOpacity = parseFloat(hsSlider.value);
     $('hillshade-val').textContent = STATE.hillshadeOpacity.toFixed(2);
     if (STATE.map.getLayer(APP_CONFIG.ids.hillshade)) {
-      STATE.map.setPaintProperty(APP_CONFIG.ids.hillshade, 'hillshade-exaggeration',
-        STATE.hillshadeOpacity);
+      STATE.map.setPaintProperty(APP_CONFIG.ids.hillshade, 'hillshade-exaggeration', STATE.hillshadeOpacity);
     }
   });
 
-  // Geology checkbox (reversible visibility only).
   const geoToggle = $('geology-toggle');
   geoToggle.addEventListener('change', function () {
     if (!STATE.hasGeology) { geoToggle.checked = false; return; }
     STATE.geologyOn = geoToggle.checked;
     [APP_CONFIG.ids.geologyFill, APP_CONFIG.ids.geologyOutline].forEach(function (lid) {
-      if (STATE.map.getLayer(lid)) {
-        STATE.map.setLayoutProperty(lid, 'visibility', STATE.geologyOn ? 'visible' : 'none');
-      }
+      if (STATE.map.getLayer(lid)) STATE.map.setLayoutProperty(lid, 'visibility', STATE.geologyOn ? 'visible' : 'none');
     });
     showStatus(STATE.geologyOn
       ? 'Geology visualization shown (display only; terrain unchanged).'
       : 'Geology visualization hidden (display only; terrain unchanged).', 'info', 3000);
   });
 
-  // Geology opacity slider.
   const geoSlider = $('geology-slider');
   geoSlider.value = String(STATE.geologyOpacity);
   $('geology-val').textContent = STATE.geologyOpacity.toFixed(2);
   geoSlider.addEventListener('input', function () {
     STATE.geologyOpacity = parseFloat(geoSlider.value);
     $('geology-val').textContent = STATE.geologyOpacity.toFixed(2);
-    if (STATE.map.getLayer(APP_CONFIG.ids.geologyFill)) {
-      STATE.map.setPaintProperty(APP_CONFIG.ids.geologyFill, 'fill-opacity', STATE.geologyOpacity);
-    }
-    if (STATE.map.getLayer(APP_CONFIG.ids.geologyOutline)) {
-      STATE.map.setPaintProperty(APP_CONFIG.ids.geologyOutline, 'line-opacity',
-        Math.min(1, STATE.geologyOpacity + 0.3));
-    }
+    if (STATE.map.getLayer(APP_CONFIG.ids.geologyFill)) STATE.map.setPaintProperty(APP_CONFIG.ids.geologyFill, 'fill-opacity', STATE.geologyOpacity);
+    if (STATE.map.getLayer(APP_CONFIG.ids.geologyOutline)) STATE.map.setPaintProperty(APP_CONFIG.ids.geologyOutline, 'line-opacity', Math.min(1, STATE.geologyOpacity + 0.3));
   });
 
-  // Reset view button (panel).
   $('reset-view-btn').addEventListener('click', resetView);
-
   honorInitialHash();
 }
 
-/* ---------- Sync helpers keep UI consistent with STATE + data ---------- */
 function syncTerrainControls() {
   const on = STATE.terrainOn;
   const exSlider = $('exaggeration-slider');
   const note = $('exaggeration-note');
   exSlider.disabled = !on;
-  if (!on) {
-    note.textContent = 'Terrain is off — exaggeration is inactive. Enable 3D terrain to adjust it.';
-  } else {
-    note.textContent = 'Exaggeration changes the visual display only, not the underlying DEM data.';
-  }
+  note.textContent = on
+    ? 'Exaggeration changes the visual display only, not the underlying DEM data.'
+    : 'Terrain is off — exaggeration is inactive. Enable 3D terrain to adjust it.';
   const t = $('terrain-toggle');
   if (t) t.checked = on;
 }
@@ -1675,28 +1520,29 @@ function syncGeologyControls() {
   if (STATE.hasGeology) {
     toggle.disabled = false;
     slider.disabled = false;
-    // Default to enabled the first time we detect data.
     STATE.geologyOn = true;
     toggle.checked = STATE.geologyOn;
-    status.textContent = 'Authoritative geology polygons loaded.';
-    status.classList.remove('empty');
-    status.classList.add('readonly');
-    // Apply visibility now that data exists.
+    if (APP_CONFIG.demoGeology) {
+      status.textContent = 'ILLUSTRATIVE DEMO geology loaded — synthetic, not authoritative.';
+      status.classList.remove('empty', 'readonly');
+      status.classList.add('demo');
+    } else {
+      status.textContent = 'Authoritative geology polygons loaded.';
+      status.classList.remove('empty', 'demo');
+      status.classList.add('readonly');
+    }
     [APP_CONFIG.ids.geologyFill, APP_CONFIG.ids.geologyOutline].forEach(function (lid) {
-      if (STATE.map.getLayer(lid)) {
-        STATE.map.setLayoutProperty(lid, 'visibility', STATE.geologyOn ? 'visible' : 'none');
-      }
+      if (STATE.map.getLayer(lid)) STATE.map.setLayoutProperty(lid, 'visibility', STATE.geologyOn ? 'visible' : 'none');
     });
     buildLegend();
   } else {
-    // Empty geology: disable controls, show honest message, no fake legend.
     STATE.geologyOn = false;
     toggle.checked = false;
     toggle.disabled = true;
     slider.disabled = true;
     status.textContent = 'No authoritative geology polygons loaded';
     status.classList.add('empty');
-    status.classList.remove('readonly');
+    status.classList.remove('readonly', 'demo');
     $('legend').innerHTML = '';
     const hint = document.createElement('p');
     hint.className = 'note';
@@ -1708,11 +1554,8 @@ function syncGeologyControls() {
 /* =====================================================================
    Start
    ===================================================================== */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot);
-} else {
-  boot();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
 </script>
 </body>
 </html>
